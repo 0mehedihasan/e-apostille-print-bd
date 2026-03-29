@@ -54,12 +54,30 @@
 
   /* ────────────────────────────────────────────
      CERTIFICATE
+     The canvas sometimes exists but is blank (tainted / not yet rendered).
+     We validate it's non-blank by checking a centre pixel has non-zero alpha.
   ──────────────────────────────────────────── */
 
   function extractCertificate() {
     const canvas = document.querySelector("canvas");
     if (!canvas) return null;
-    try { return canvas.toDataURL("image/jpeg", 0.85); } catch { return null; }
+    try {
+      // Check canvas actually has content (not blank/tainted)
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        const px = ctx.getImageData(
+          Math.floor(canvas.width / 2),
+          Math.floor(canvas.height / 2),
+          1, 1
+        ).data;
+        // If centre pixel is fully transparent or pure white → treat as blank
+        const isBlank = (px[3] === 0) || (px[0] === 255 && px[1] === 255 && px[2] === 255 && px[3] === 255);
+        if (isBlank) return null;
+      }
+      return canvas.toDataURL("image/jpeg", 0.85);
+    } catch {
+      return null;
+    }
   }
 
   /* ────────────────────────────────────────────
@@ -103,7 +121,7 @@
 
   /* ────────────────────────────────────────────
      SIGNATORY PARSER
-     Exact DOM order:
+     Exact DOM order per block:
        H1   "Attested"
        IMG  <signature>
        P    "09 Feb 2026"
@@ -166,7 +184,8 @@
 
     for (const div of containers) {
       const docImg = div.querySelector("img[id^='prevImg']");
-      if (!docImg) continue;
+      // FIX: skip containers with no actual document image → no empty pages
+      if (!docImg || !docImg.src || docImg.src === window.location.href) continue;
 
       n++;
       updateProgress(`Processing document ${n} / ${containers.length}…`);
@@ -195,15 +214,7 @@
   }
 
   /* ────────────────────────────────────────────
-     DOM-BASED HTML BUILDER
-     Matches real apostille.mygov.bd page exactly:
-       • No boxes or borders
-       • Signatories displayed in a clean row
-       • Each block: "Attested" (cursive) → sig image → date → name → titles
-       • All text purple #4b0082
-       • Fonts: "Noto Serif" for date/name/title (close to real page),
-                "Dancing Script" for "Attested" cursive
-         Both fall back to "Times New Roman" if fonts don't load.
+     HTML BUILDER
   ──────────────────────────────────────────── */
 
   function buildHTMLDocument(filename, cert, blocks) {
@@ -213,9 +224,10 @@
 <meta charset="utf-8">
 <title></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Noto+Serif:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
-  @page { size: A4 portrait; margin: 10mm; }
+  /* ── print setup ── */
+  @page { size: A4 portrait; margin: 12mm 10mm; }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -226,42 +238,55 @@
     print-color-adjust: exact;
   }
 
-  /* ── page wrapper ── */
+  /* ── page wrapper ──
+     KEY FIX: use break-after instead of page-break-after,
+     and only apply it between pages, not after the last one.
+     We also use display:block so height is determined by content
+     — no empty space that causes a phantom blank page.
+  ── */
   .page {
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 4mm 0 6mm;
-    page-break-after: always;
+    display: block;
+    break-after: page;
+    padding-bottom: 6mm;
   }
-  .page:last-child { page-break-after: avoid; }
+  .page:last-child {
+    break-after: avoid;
+  }
+
+  /* ── certificate page ── */
+  .cert-page {
+    width: 100%;
+    text-align: center;
+  }
+  .cert-page img {
+    max-width: 100%;
+    max-height: 260mm;
+    object-fit: contain;
+  }
 
   /* ── document image ── */
   .doc-img-wrap {
     width: 100%;
     text-align: center;
-    margin-bottom: 8mm;
+    margin-bottom: 7mm;
   }
   .doc-img-wrap img {
     max-width: 100%;
-    max-height: 172mm;
+    max-height: 168mm;
     object-fit: contain;
   }
-  .cert-img-wrap img {
-    max-height: 272mm;
-  }
 
-  /* ── signatory grid: exactly 3 per row, wraps to next row automatically ── */
+  /* ── signatory grid: exactly 3 columns, wraps to next row ── */
   .sig-row {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8mm 4mm;
+    gap: 7mm 3mm;
     align-items: start;
   }
 
-  /* ── one signatory block — no box, clean centered ── */
+  /* ── one signatory — no box, clean centred ── */
   .sig-block {
     display: flex;
     flex-direction: column;
@@ -269,116 +294,139 @@
     text-align: center;
   }
 
-  /* "Attested" — cursive, exactly as on the real page */
+  /* "Attested" / "Verified and found correct" cursive */
   .attested-label {
-    font-family: "Dancing Script", "Brush Script MT", "Times New Roman", cursive;
-    font-size: 22pt;
+    font-family: "Dancing Script", "Brush Script MT", cursive;
+    font-size: 20pt;
     font-weight: 600;
     color: #4b0082;
-    line-height: 1.2;
-    margin-bottom: 2mm;
+    line-height: 1.15;
+    margin-bottom: 1.5mm;
   }
 
   /* signature image */
   .sig-img {
-    height: 45px;
+    height: 44px;
     max-width: 100%;
     object-fit: contain;
-    margin-bottom: 3mm;
+    margin-bottom: 2.5mm;
   }
 
-  /* date — bold, larger, matches the page heading style */
+  /* date */
   .sig-date {
     font-family: "Noto Serif", "Times New Roman", serif;
-    font-size: 13pt;
+    font-size: 12.5pt;
     font-weight: 700;
     color: #4b0082;
     margin-bottom: 1mm;
   }
 
-  /* name — bold */
+  /* name */
   .sig-name {
     font-family: "Noto Serif", "Times New Roman", serif;
-    font-size: 11.5pt;
+    font-size: 11pt;
     font-weight: 700;
     color: #4b0082;
     margin-bottom: 0.5mm;
   }
 
-  /* title / org lines — normal weight */
+  /* title / org lines */
   .sig-title-line {
     font-family: "Noto Serif", "Times New Roman", serif;
-    font-size: 10pt;
+    font-size: 9.5pt;
     font-weight: 400;
     color: #4b0082;
-    line-height: 1.45;
+    line-height: 1.4;
+  }
+
+  /* ── footer credit ── */
+  .footer-credit {
+    width: 100%;
+    text-align: center;
+    margin-top: 10mm;
+    padding-top: 3mm;
+    border-top: 1px solid #d0b8f0;
+    font-family: "Noto Serif", "Times New Roman", serif;
+    font-size: 7.5pt;
+    color: #9370bb;
+    letter-spacing: 0.3px;
+  }
+  .footer-credit a {
+    color: #7b3fa8;
+    text-decoration: none;
   }
 </style>`;
 
     doc.title = filename;
 
-    // ── element helper ──
     function el(tag, cls, text) {
       const e = doc.createElement(tag);
-      if (cls)  e.className   = cls;
+      if (cls)  e.className = cls;
       if (text !== undefined) e.textContent = text;
       return e;
     }
 
-    // ── one signatory block ──
-    // Exact order matches DOM: Attested → sig → date → name → title lines
+    /* ── signatory block ── */
     function makeSigBlock(s) {
       const block = el("div", "sig-block");
 
-      // 1. "Attested" cursive  (H1 in real DOM)
+      // 1. Attested label (H1 in DOM)
       block.appendChild(el("div", "attested-label", s.attestedLabel || "Attested"));
 
-      // 2. Signature image  (IMG immediately after H1)
+      // 2. Signature image (IMG right after H1)
       if (s.sigImg) {
         const img = doc.createElement("img");
-        img.src       = s.sigImg;
-        img.alt       = "signature";
+        img.src = s.sigImg;
+        img.alt = "signature";
         img.className = "sig-img";
         block.appendChild(img);
       }
 
-      // 3. Date  (first P)
+      // 3. Date (first P)
       if (s.date) block.appendChild(el("div", "sig-date", s.date));
 
-      // 4. Name  (second P)
+      // 4. Name (second P)
       if (s.name) block.appendChild(el("div", "sig-name", s.name));
 
-      // 5. Title / org lines  (remaining P elements)
+      // 5. Title / org lines (remaining P)
       s.titleLines.forEach(t => block.appendChild(el("div", "sig-title-line", t)));
 
       return block;
     }
 
-    // ── one full page ──
-    function makePage(imgSrc, signatories, isCert) {
+    /* ── certificate page — only added if cert data is valid ── */
+    if (cert) {
+      const certPage = el("div", "page");
+      const certWrap = el("div", "cert-page");
+      const certImg  = doc.createElement("img");
+      certImg.src = cert;
+      certImg.alt = "e-Apostille Certificate";
+      certWrap.appendChild(certImg);
+      certPage.appendChild(certWrap);
+      doc.body.appendChild(certPage);
+    }
+
+    /* ── document pages ── */
+    blocks.forEach((b, idx) => {
       const page = el("div", "page");
 
-      // document image
-      const wrap = el("div", isCert ? "doc-img-wrap cert-img-wrap" : "doc-img-wrap");
+      // Document image
+      const wrap = el("div", "doc-img-wrap");
       const img  = doc.createElement("img");
-      img.src = imgSrc;
-      img.alt = isCert ? "e-Apostille Certificate" : "document";
+      img.src = b.img;
+      img.alt = "document";
       wrap.appendChild(img);
       page.appendChild(wrap);
 
-      // signatories row (cert page has none)
-      if (!isCert && signatories && signatories.length > 0) {
+      // Signatories grid
+      if (b.signatories && b.signatories.length > 0) {
         const row = el("div", "sig-row");
-        signatories.forEach(s => row.appendChild(makeSigBlock(s)));
+        b.signatories.forEach(s => row.appendChild(makeSigBlock(s)));
         page.appendChild(row);
       }
-
-      return page;
-    }
-
-    // ── assemble ──
-    if (cert) doc.body.appendChild(makePage(cert, [], true));
-    blocks.forEach(b => doc.body.appendChild(makePage(b.img, b.signatories, false)));
+      
+      doc.body.appendChild(page);
+    });
 
     return doc;
   }
@@ -422,7 +470,7 @@
     w.document.close();
     w.focus();
 
-    updateProgress("Ready — print dialog opening…");
+    updateProgress("Ready — opening print dialog…");
 
     w.onload = () => {
       setTimeout(() => {
@@ -430,17 +478,17 @@
         updateProgress("Done ✓");
         setButtonState(false);
         isRunning = false;
-      }, 400);
+      }, 600);
     };
 
-    // Fallback if onload already fired
+    // Fallback if onload already fired (about:blank)
     setTimeout(() => {
       if (!isRunning) return;
       w.print();
       updateProgress("Done ✓");
       setButtonState(false);
       isRunning = false;
-    }, 2200);
+    }, 2500);
   }
 
   /* ────────────────────────────────────────────
@@ -451,14 +499,19 @@
     const panel = document.createElement("div");
     panel.id = "ultimate-panel";
     panel.innerHTML = `
-      <div class="title">e-Apostille</div>
+      <div class="ap-logo">📄</div>
+      <div class="ap-title">e-Apostille</div>
+      <div class="ap-sub">PDF Generator</div>
+      <div class="ap-divider"></div>
+      <label class="ap-label">Quality</label>
       <select id="ap-mode">
-        <option value="normal">Normal quality</option>
+        <option value="normal">Normal (recommended)</option>
         <option value="small">Small file</option>
         <option value="verysmall">Very small file</option>
       </select>
       <button id="run">Generate PDF</button>
-      <div id="progressText">Idle</div>
+      <div id="progressText" class="ap-progress">Idle</div>
+      <div class="ap-credit">by <a href="https://github.com/0mehedihasan" target="_blank">github/0mehedihasan</a></div>
     `;
     document.body.appendChild(panel);
 

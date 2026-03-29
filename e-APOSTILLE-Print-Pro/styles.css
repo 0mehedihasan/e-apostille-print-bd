@@ -1,75 +1,154 @@
-/* ── e-Apostille extension panel ── */
+/* ════════════════════════════════════════
+   e-Apostille PDF Generator — Panel UI
+   github.com/0mehedihasan
+════════════════════════════════════════ */
 
 #ultimate-panel {
   position: fixed;
   top: 20px;
   right: 20px;
-  width: 220px;
+  width: 210px;
   box-sizing: border-box;
-  background: #fff;
+  background: #ffffff;
   border: 1px solid #ddd0f5;
-  border-radius: 10px;
-  box-shadow: 0 6px 20px rgba(75, 0, 130, 0.18);
+  border-radius: 12px;
+  box-shadow:
+    0 4px 6px rgba(75,0,130,0.08),
+    0 10px 28px rgba(75,0,130,0.14);
   z-index: 2147483647;
-  padding: 12px;
+  padding: 14px 14px 10px;
   font-family: "Segoe UI", Arial, sans-serif;
   overflow: hidden;
 }
 
-#ultimate-panel .title {
-  font-weight: 700;
-  font-size: 13.5px;
+/* logo icon */
+#ultimate-panel .ap-logo {
+  font-size: 22px;
   text-align: center;
-  margin-bottom: 10px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+/* main title */
+#ultimate-panel .ap-title {
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
   color: #4b0082;
   letter-spacing: 0.3px;
-  border-bottom: 1px solid #e0d0f0;
-  padding-bottom: 8px;
+  line-height: 1.2;
 }
 
-#ultimate-panel select,
-#ultimate-panel button {
+/* subtitle */
+#ultimate-panel .ap-sub {
+  font-size: 10px;
+  text-align: center;
+  color: #9370bb;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* divider */
+#ultimate-panel .ap-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #d0b8f0, transparent);
+  margin-bottom: 9px;
+}
+
+/* quality label */
+#ultimate-panel .ap-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  color: #7b5ea7;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 3px;
+}
+
+/* select */
+#ultimate-panel select {
   width: 100%;
   box-sizing: border-box;
-  margin: 4px 0;
-  padding: 8px;
-  border-radius: 6px;
-  font-size: 12.5px;
-}
-
-#ultimate-panel select {
+  padding: 7px 8px;
   border: 1px solid #c9b8e8;
+  border-radius: 7px;
   background: #f8f4ff;
   color: #2d1a4a;
+  font-size: 12px;
+  font-family: "Segoe UI", Arial, sans-serif;
   outline: none;
   cursor: pointer;
+  margin-bottom: 7px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237b5ea7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  padding-right: 26px;
 }
 #ultimate-panel select:focus {
   border-color: #4b0082;
+  box-shadow: 0 0 0 2px rgba(75,0,130,0.12);
 }
 
-#ultimate-panel button {
-  background: #4b0082;
+/* generate button */
+#ultimate-panel button#run {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 0;
+  background: linear-gradient(135deg, #4b0082, #6a00b8);
   color: #fff;
   border: none;
-  cursor: pointer;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.2px;
-  transition: background 0.18s;
+  font-family: "Segoe UI", Arial, sans-serif;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: opacity 0.18s, transform 0.12s;
+  box-shadow: 0 3px 10px rgba(75,0,130,0.28);
 }
-#ultimate-panel button:hover:not(:disabled) {
-  background: #6a0dad;
+#ultimate-panel button#run:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
 }
-#ultimate-panel button:disabled {
-  background: #a080c0;
+#ultimate-panel button#run:active:not(:disabled) {
+  transform: translateY(0);
+}
+#ultimate-panel button#run:disabled {
+  background: linear-gradient(135deg, #a080c0, #b090d0);
   cursor: not-allowed;
+  box-shadow: none;
 }
 
-#progressText {
-  font-size: 11px;
+/* progress text */
+#ultimate-panel .ap-progress {
+  font-size: 10.5px;
   text-align: center;
   margin-top: 7px;
-  color: #555;
+  color: #666;
   word-break: break-word;
-  min-height: 16px;
+  min-height: 15px;
+  line-height: 1.4;
+}
+
+/* developer credit */
+#ultimate-panel .ap-credit {
+  font-size: 9.5px;
+  text-align: center;
+  color: #b0a0c8;
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px solid #ede5f8;
+}
+#ultimate-panel .ap-credit a {
+  color: #9370bb;
+  text-decoration: none;
+  font-weight: 600;
+}
+#ultimate-panel .ap-credit a:hover {
+  color: #4b0082;
+  text-decoration: underline;
 }
