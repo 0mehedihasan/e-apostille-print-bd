@@ -1,0 +1,75 @@
+/* ── e-Apostille extension panel ── */
+
+#ultimate-panel {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 220px;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #ddd0f5;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(75, 0, 130, 0.18);
+  z-index: 2147483647;
+  padding: 12px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  overflow: hidden;
+}
+
+#ultimate-panel .title {
+  font-weight: 700;
+  font-size: 13.5px;
+  text-align: center;
+  margin-bottom: 10px;
+  color: #4b0082;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid #e0d0f0;
+  padding-bottom: 8px;
+}
+
+#ultimate-panel select,
+#ultimate-panel button {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 4px 0;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12.5px;
+}
+
+#ultimate-panel select {
+  border: 1px solid #c9b8e8;
+  background: #f8f4ff;
+  color: #2d1a4a;
+  outline: none;
+  cursor: pointer;
+}
+#ultimate-panel select:focus {
+  border-color: #4b0082;
+}
+
+#ultimate-panel button {
+  background: #4b0082;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  transition: background 0.18s;
+}
+#ultimate-panel button:hover:not(:disabled) {
+  background: #6a0dad;
+}
+#ultimate-panel button:disabled {
+  background: #a080c0;
+  cursor: not-allowed;
+}
+
+#progressText {
+  font-size: 11px;
+  text-align: center;
+  margin-top: 7px;
+  color: #555;
+  word-break: break-word;
+  min-height: 16px;
+}

@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "e-APOSTILLE PDF Generator",
+  "version": "8.0",
+  "description": "Generates a clean PDF from Bangladesh e-Apostille verification pages with correct signatory layout.",
+  "icons": {
+    "16":  "icon.png",
+    "48":  "icon.png",
+    "128": "icon.png"
+  },
+  "action": {
+    "default_title": "e-Apostille PDF Generator"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://apostille.mygov.bd/*"],
+      "js":  ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
