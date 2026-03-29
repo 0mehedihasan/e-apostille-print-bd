@@ -4,7 +4,7 @@ A Chrome extension that improves print output from the Bangladesh e-Apostille po
 
 ## Overview
 
-`e-APOSTILLE-Print-Pro` injects a small control panel into `https://apostille.mygov.bd/*`, then:
+The extension package in `e-APOSTILLE-Print-Pro` injects a small control panel into `https://apostille.mygov.bd/*`, then:
 
 - collects the certificate canvas and document images,
 - extracts and arranges signatory details,
@@ -25,10 +25,10 @@ A Chrome extension that improves print output from the Bangladesh e-Apostille po
 
 ## Repository Structure
 
-- `/e-APOSTILLE-Print-Pro/manifest.json` — Chrome extension manifest (MV3)
-- `/e-APOSTILLE-Print-Pro/content.js` — content script logic and PDF/print flow
-- `/e-APOSTILLE-Print-Pro/styles.css` — injected panel styles
-- `/install_figs/` — installation screenshots
+- `e-APOSTILLE-Print-Pro/manifest.json` — Chrome extension manifest (MV3)
+- `e-APOSTILLE-Print-Pro/content.js` — content script logic and PDF/print flow
+- `e-APOSTILLE-Print-Pro/styles.css` — injected panel styles
+- `install_figs/` — installation screenshots
 
 ## Manual Installation (Step by Step)
 
@@ -58,7 +58,7 @@ A Chrome extension that improves print output from the Bangladesh e-Apostille po
 
 1. Open your e-Apostille page and click the extension panel button **Generate PDF**
 
-   ![Step 6 - Click Download/Generate on Application](install_figs/step_06_go_to_your_apostile_application_click_download.PNG)
+   ![Step 6 - Click Download/Generate on Application](install_figs/step_06_go_to_your_apostille_application_click_download.PNG)
 
 2. Wait for processing, then continue when the preview/print flow is ready
 
