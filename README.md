@@ -56,11 +56,11 @@ The extension package in `e-APOSTILLE-Print-Pro` injects a small control panel i
 
 ## Usage (Step by Step)
 
-1. Open your e-Apostille page and click the extension panel button **Generate PDF**
+1. Open your e-Apostille page and click the download button.
 
    ![Step 6 - Click Download/Generate on Application](install_figs/step_06_go_to_your_apostille_application_click_download.PNG)
 
-2. Wait for processing, then continue when the preview/print flow is ready
+2. Wait for processing, then click extension panel button **Generate PDF**
 
    ![Step 7 - Click Generate](install_figs/step_07_click_on_generate.PNG)
 
